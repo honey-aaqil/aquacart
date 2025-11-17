@@ -1,0 +1,52 @@
+{
+  "placeholderImages": [
+    {
+      "id": "1",
+      "description": "Wild Alaskan Salmon",
+      "imageUrl": "https://images.unsplash.com/photo-1513309642960-b1d95a1b69f7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzYWxtb24lMjBmaXNofGVufDB8fHx8MTc2MzA5MTExOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "salmon fish"
+    },
+    {
+      "id": "2",
+      "description": "Fresh Atlantic Cod",
+      "imageUrl": "https://images.unsplash.com/photo-1598198393472-4ef35a2bbafe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjb2QlMjBmaXNofGVufDB8fHx8MTc2MzA5MTExOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cod fish"
+    },
+    {
+      "id": "3",
+      "description": "Jumbo Black Tiger Shrimp",
+      "imageUrl": "https://images.unsplash.com/photo-1703319959677-b8dd4f14c80e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxzaHJpbXB8ZW58MHx8fHwxNzYyOTg0ODU4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "shrimp"
+    },
+    {
+      "id": "4",
+      "description": "Bluefin Tuna Steaks",
+      "imageUrl": "https://images.unsplash.com/photo-1677367306400-d090b5ab52d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx0dW5hJTIwc3RlYWt8ZW58MHx8fHwxNzYzMDkxMTE5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tuna steak"
+    },
+    {
+      "id": "5",
+      "description": "Live Maine Lobster",
+      "imageUrl": "https://images.unsplash.com/photo-1707995546408-9815c70dd5c4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxsb2JzdGVyfGVufDB8fHx8MTc2MzA5MTExOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "lobster"
+    },
+    {
+      "id": "6",
+      "description": "Fresh Scallops",
+      "imageUrl": "https://images.unsplash.com/photo-1661874854804-0f89345cf432?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxzY2FsbG9wc3xlbnwwfHx8fDE3NjMwOTExMTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "scallops"
+    },
+    {
+      "id": "7",
+      "description": "Pacific Oysters",
+      "imageUrl": "https://images.unsplash.com/photo-1632027543405-925ae0b0f98c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxveXN0ZXJzfGVufDB8fHx8MTc2MzA5MTExOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "oysters"
+    },
+    {
+      "id": "8",
+      "description": "Swordfish Steaks",
+      "imageUrl": "https://images.unsplash.com/photo-1637308101513-10f6e78d5514?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzd29yZGZpc2h8ZW58MHx8fHwxNzYzMDkxMTE5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "swordfish"
+    }
+  ]
+}
