@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from '@/hooks/use-toast';
 import { Home, Loader2, MoreVertical, Plus, Star, Trash2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
-import { IAddress } from '@/models/User';
+import { Address } from '@/types/Address';
 
 const addressSchema = z.object({
   street: z.string().min(1, 'Street is required'),
@@ -23,7 +23,7 @@ const addressSchema = z.object({
 
 type AddressFormValues = z.infer<typeof addressSchema>;
 
-export default function AddressManager({ initialAddresses }: { initialAddresses: IAddress[] }) {
+export default function AddressManager({ initialAddresses }: { initialAddresses: Address[] }) {
   const [addresses, setAddresses] = useState(initialAddresses);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);

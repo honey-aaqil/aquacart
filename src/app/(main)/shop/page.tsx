@@ -1,12 +1,12 @@
 import { ProductCard } from '@/components/products/ProductCard';
 import dbConnect from '@/lib/mongodb';
-import ProductModel, { IProduct } from '@/models/Product';
-import { AnimatePresence, motion } from 'framer-motion';
+import ProductModel from '@/models/Product';
+import { Product } from '@/types/Product';
 
-async function getProducts() {
+async function getProducts(): Promise<Product[]> {
   await dbConnect();
   const products = await ProductModel.find({}).sort({ createdAt: -1 }).lean();
-  return JSON.parse(JSON.stringify(products)) as IProduct[];
+  return JSON.parse(JSON.stringify(products));
 }
 
 export default async function ShopPage() {
@@ -26,7 +26,7 @@ export default async function ShopPage() {
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {products.map((product) => (
-              <ProductCard key={product._id.toString()} product={product} />
+              <ProductCard key={product._id} product={product} />
             ))}
         </div>
       )}

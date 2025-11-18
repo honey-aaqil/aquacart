@@ -2,10 +2,10 @@
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
-import { IOrder } from '@/models/Order';
+import { Order } from '@/types/Order';
 import { format } from 'date-fns';
 
-export default function OrderHistory({ orders }: { orders: IOrder[] }) {
+export default function OrderHistory({ orders }: { orders: Order[] }) {
   const getStatusVariant = (status: string) => {
     switch (status) {
         case 'Delivered': return 'default';

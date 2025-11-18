@@ -34,8 +34,6 @@ const wss = new WebSocketServer({ noServer: true });
 // Store authenticated admin clients
 const adminClients = new Set<WebSocket>();
 
-import jwt from 'jsonwebtoken';
-
 const secret = process.env.NEXTAUTH_SECRET;
 
 server.on('upgrade', async (request, socket, head) => {

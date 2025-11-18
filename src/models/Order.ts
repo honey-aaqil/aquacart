@@ -39,6 +39,7 @@ export interface IOrderItem extends Document {
 }
 
 export interface IOrder extends Document {
+  _id: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   customerName: string;
   customerPhone: string;

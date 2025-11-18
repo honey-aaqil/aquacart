@@ -56,6 +56,7 @@ const UserSchema = new Schema({
 }, { timestamps: true });
 
 export interface IAddress extends Document {
+    _id: mongoose.Types.ObjectId;
     street: string;
     city: string;
     state: string;
@@ -63,7 +64,8 @@ export interface IAddress extends Document {
     isDefault: boolean;
 }
 
-export interface ICartItem extends Document {
+export interface ICartItem {
+    _id?: mongoose.Types.ObjectId;
     productId: mongoose.Types.ObjectId;
     quantity: number;
 }
