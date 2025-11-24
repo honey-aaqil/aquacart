@@ -1,4 +1,3 @@
-
 import mongoose, { Document, Model, Schema } from 'mongoose';
 
 const ProductSchema = new Schema({
@@ -12,6 +11,7 @@ const ProductSchema = new Schema({
   availability: { type: Boolean, default: true },
 }, { timestamps: true });
 
+// Backend Interface: Extends Mongoose Document (Use this in API routes)
 export interface IProduct extends Document {
   name: string;
   description: string;
@@ -21,8 +21,25 @@ export interface IProduct extends Document {
   category: string;
   quantity: number;
   availability: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const ProductModel = (): Model<IProduct> => mongoose.model<IProduct>('Product', ProductSchema);
+// Frontend Interface: Pure Data (Use this in React Components)
+export interface SerializedProduct {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  imageHint?: string;
+  category: string;
+  quantity: number;
+  availability: boolean;
+  createdAt: string; // JSON converts Date to string
+  updatedAt: string; // JSON converts Date to string
+}
 
-export default (mongoose.models.Product as Model<IProduct>) || ProductModel();
+const ProductModel = (): Model<IProduct> => mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema);
+
+export default ProductModel();

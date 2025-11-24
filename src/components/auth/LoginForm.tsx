@@ -10,10 +10,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import Link from 'next/link';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { Terminal } from 'lucide-react';
+import { Terminal, Waves } from 'lucide-react';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -26,7 +24,6 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const emailVerified = searchParams.get('verified') === 'true';
-
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -49,7 +46,9 @@ export function LoginForm() {
       if (result?.error) {
         setError(result.error === 'CredentialsSignin' ? 'Invalid email or password.' : result.error);
       } else if (result?.ok) {
-        router.push('/shop');
+        // Redirect to Home as requested
+        router.push('/');
+        router.refresh();
       }
     } catch (err: any) {
         setError('An unexpected error occurred.');
@@ -59,14 +58,22 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="mx-auto max-w-sm">
-      <CardHeader>
-        <CardTitle className="text-2xl">Login</CardTitle>
-        <CardDescription>Enter your email below to login to your account</CardDescription>
-      </CardHeader>
-      <CardContent>
+    // Main Container
+   
+    <div id="01" className="relative flex min-h-screen w-full flex-col items-center justify-center p-4 bg-background-light dark:bg-background-dark font-display">
+      
+      <div className="flex w-full max-w-sm flex-col items-center gap-8">
+        
+        {/* Header Section */}
+        <div className="flex flex-col items-center gap-2 text-center">
+          <Waves className="w-12 h-12 text-primary-dark" />
+          <h1 className="text-3xl font-bold text-primary-dark">Welcome to AquaFresh</h1>
+          <h3 className="text-secondary-teal dark:text-gray-400">Sign in to continue</h3>
+        </div>
+
+        {/* Alerts */}
         {emailVerified && (
-            <Alert className="mb-4 bg-green-100 dark:bg-green-900/50 border-green-200 dark:border-green-800">
+            <Alert className="bg-green-100 dark:bg-green-900/50 border-green-200 dark:border-green-800 text-green-800 dark:text-green-200">
                 <Terminal className="h-4 w-4" />
                 <AlertTitle>Success!</AlertTitle>
                 <AlertDescription>
@@ -75,54 +82,75 @@ export function LoginForm() {
             </Alert>
         )}
         {error && (
-            <Alert variant="destructive" className="mb-4">
+            <Alert variant="destructive" className="bg-red-100 border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200">
                 <Terminal className="h-4 w-4" />
                 <AlertTitle>Login Failed</AlertTitle>
-                <AlertDescription>
-                    {error}
-                </AlertDescription>
+                <AlertDescription>{error}</AlertDescription>
             </Alert>
         )}
+
+        {/* Form Section */}
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full flex-col gap-4">
+            
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
+                <FormItem className="flex flex-col gap-2 space-y-0">
+                  <FormLabel className="text-sm font-medium text-primary-dark/80 dark:text-gray-300">Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="name@example.com" {...field} />
+                    <Input 
+                      placeholder="you@example.com" 
+                      className="h-12 w-full rounded-lg border-secondary-teal/30 bg-card-light dark:bg-card-dark dark:border-gray-700 shadow-sm focus:border-primary-medium focus:ring-primary-medium text-primary-dark dark:text-gray-200" 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
+                <FormItem className="flex flex-col gap-2 space-y-0">
+                  <FormLabel className="text-sm font-medium text-primary-dark/80 dark:text-gray-300">Password</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} />
+                    <Input 
+                      type="password" 
+                      placeholder="••••••••" 
+                      className="h-12 w-full rounded-lg border-secondary-teal/30 bg-card-light dark:bg-card-dark dark:border-gray-700 shadow-sm focus:border-primary-medium focus:ring-primary-medium text-primary-dark dark:text-gray-200" 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? 'Logging in...' : 'Login'}
-            </Button>
+
+            <div className="mt-4 flex flex-col gap-3">
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="flex h-12 w-full items-center justify-center rounded-full bg-primary-medium hover:bg-primary-medium/90 text-base font-bold text-white shadow-md transition-transform active:scale-95"
+              >
+                {isSubmitting ? 'Logging in...' : 'Login'}
+              </Button>
+              
+              <Button 
+                type="button"
+                onClick={() => router.push('/register')}
+                className="flex h-12 w-full items-center justify-center rounded-full bg-accent hover:bg-accent/90 text-base font-bold text-white shadow-md transition-transform active:scale-95"
+              >
+                Sign Up
+              </Button>
+            </div>
+
           </form>
         </Form>
-        <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account?{' '}
-          <Link href="/register" className="underline text-primary">
-            Sign up
-          </Link>
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

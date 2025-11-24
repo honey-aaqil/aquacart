@@ -8,14 +8,16 @@ import { ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Product } from '@/types/Product';
+// FIX: Import SerializedProduct
+import { SerializedProduct } from '@/models/Product';
 import { useToast } from '@/hooks/use-toast';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 type ProductCardProps = {
-  product: Product;
+  // FIX: Use SerializedProduct type
+  product: SerializedProduct;
 };
 
 export function ProductCard({ product }: ProductCardProps) {

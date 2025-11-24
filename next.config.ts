@@ -6,12 +6,14 @@ const pwaConfig = withPWA({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development',
   register: true,
-  // skipWaiting: true,
+  // REMOVED: skipWaiting: true (This was causing the TypeScript error)
+  // If you specifically need this, it usually goes into workboxOptions like this:
+  // workboxOptions: { skipWaiting: true },
 });
 
 const nextConfig: NextConfig = {
   /* config options here */
-  turbopack: {},
+  turbopack: {}, // Keep this if you are using Turbopack
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -32,6 +34,24 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'picsum.photos',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'drive.google.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'googleusercontent.com',
         port: '',
         pathname: '/**',
       },

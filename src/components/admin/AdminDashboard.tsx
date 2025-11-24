@@ -25,78 +25,71 @@ export default function AdminDashboard() {
   const [notifications, setNotifications] = useState<OrderNotification[]>([]);
   const [wsStatus, setWsStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
 
-  // Extract the stable, primitive values from the session
-  const userRole = session?.user?.role;
+  // Extract primitive values for stable dependencies
   const accessToken = session?.accessToken;
+  const userRole = session?.user?.role;
 
   useEffect(() => {
-    // Define the connection logic *inside* the effect
-    const connectWebSocket = () => {
-      if (!accessToken) {
-        // Don't try to connect without a token
-        return () => {}; // Return an empty cleanup function
-      }
+    // Only proceed if user is admin and we have a token
+    if (userRole !== 'admin' || !accessToken) {
+      return;
+    }
 
-      const wsUrl = `${process.env.NEXT_PUBLIC_WSS_URL}?token=${accessToken}`;
-      const ws = new WebSocket(wsUrl);
+    const wsUrl = process.env.NEXT_PUBLIC_WSS_URL;
+    if (!wsUrl) {
+      console.error('NEXT_PUBLIC_WSS_URL is not defined');
+      setWsStatus('disconnected');
+      return;
+    }
 
-      ws.onopen = () => {
-        console.log('WebSocket connected');
-        setWsStatus('connected');
-      };
+    // Define connection logic inside the effect
+    console.log('Initializing WebSocket connection...');
+    const ws = new WebSocket(`${wsUrl}?token=${accessToken}`);
 
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.type === 'new_order') {
-            const newOrder: OrderNotification = data.payload;
-            setNotifications((prev) => [newOrder, ...prev]);
-            toast({
-              title: '🎉 New Order Received!',
-              description: `From ${newOrder.customerName} for $${newOrder.totalPrice.toFixed(2)}.`,
-            });
-          } else if (data.type === 'connection_ack') {
-            toast({
-              title: 'Live Notifications Active',
-              description: 'You are connected to the live order feed.',
-            });
-          }
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
-        }
-      };
-
-      ws.onclose = () => {
-        console.log('WebSocket disconnected');
-        setWsStatus('disconnected');
-      };
-
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        setWsStatus('disconnected');
-        toast({
-          variant: 'destructive',
-          title: 'Live Connection Failed',
-          description:
-            'Could not connect to the live order feed. Ensure the WebSocket server is running.',
-        });
-      };
-
-      // Return the real cleanup function
-      return () => {
-        ws.close();
-      };
+    ws.onopen = () => {
+      console.log('WebSocket connected');
+      setWsStatus('connected');
     };
 
-    // Only run this logic if the user is an admin
-    if (userRole === 'admin' && typeof window !== 'undefined') {
-      const cleanup = connectWebSocket();
-      return cleanup;
-    }
-    
-  // Use the stable, primitive values in the dependency array.
-  // We also add `toast` as it's used inside the effect.
-  }, [userRole, accessToken, toast]);
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'new_order') {
+          const newOrder: OrderNotification = data.payload;
+          setNotifications((prev) => [newOrder, ...prev]);
+          toast({
+            title: '🎉 New Order Received!',
+            description: `From ${newOrder.customerName} for $${newOrder.totalPrice.toFixed(2)}.`,
+          });
+        } else if (data.type === 'connection_ack') {
+          toast({
+            title: 'Live Notifications Active',
+            description: 'You are connected to the live order feed.',
+          });
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket disconnected');
+      setWsStatus('disconnected');
+    };
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error event:', error);
+      setWsStatus('disconnected');
+      // Don't spam toasts on error, the status icon is enough
+    };
+
+    // Cleanup function to close connection when component unmounts or deps change
+    return () => {
+      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+        ws.close();
+      }
+    };
+  }, [accessToken, userRole, toast]); // Dependencies are now stable primitives
 
   return (
     <Card>
@@ -104,19 +97,13 @@ export default function AdminDashboard() {
         <CardTitle className="flex items-center justify-between">
           <span>Live Order Feed</span>
           {wsStatus === 'connected' && (
-            <CheckCircle
-              className="h-5 w-5 text-green-500"
-            />
+            <CheckCircle className="h-5 w-5 text-green-500" />
           )}
           {wsStatus === 'connecting' && (
-            <Loader2
-              className="h-5 w-5 animate-spin text-yellow-500"
-            />
+            <Loader2 className="h-5 w-5 animate-spin text-yellow-500" />
           )}
           {wsStatus === 'disconnected' && (
-            <Circle
-              className="h-5 w-5 text-red-500"
-            />
+            <Circle className="h-5 w-5 text-red-500" />
           )}
         </CardTitle>
         <CardDescription>
@@ -142,7 +129,7 @@ export default function AdminDashboard() {
                   <div>
                     <p className="font-bold text-lg">
                       Order #{order.orderId.slice(-6)}
-                    </p> {/* <-- FIXED: Changed </pro> to </p> */}
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       From: {order.customerName}
                     </p>

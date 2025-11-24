@@ -1,4 +1,6 @@
-import type {Config} from 'tailwindcss';
+// honey-aaqil/sak-app/sak-app-2/tailwind.config.ts
+
+import type { Config } from 'tailwindcss';
 
 export default {
   darkMode: ['class'],
@@ -13,10 +15,21 @@ export default {
         body: ['Inter', 'sans-serif'],
         headline: ['Inter', 'sans-serif'],
         code: ['monospace'],
+        display: ['Inter', 'sans-serif'], // Added from your design
       },
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        // Custom Design Colors
+        'primary-medium': '#0c3aa2',
+        'primary-dark': '#071777',
+        'highlight': '#49F3F0',
+        'secondary-teal': '#7abab4',
+        'background-light': '#d2ceb2',
+        'background-dark': '#101622',
+        'card-light': '#fdfcf7',
+        'card-dark': '#1a2233',
+        // End Custom Colors
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
@@ -38,7 +51,7 @@ export default {
           foreground: 'hsl(var(--muted-foreground))',
         },
         accent: {
-          DEFAULT: 'hsl(var(--accent))',
+          DEFAULT: 'hsl(var(--accent))', // Keeping standard accent
           foreground: 'hsl(var(--accent-foreground))',
         },
         destructive: {
