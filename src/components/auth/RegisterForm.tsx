@@ -5,52 +5,24 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import Link from 'next/link';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Terminal, CheckCircle } from 'lucide-react';
 import { ALLOWED_EMAIL_DOMAINS } from '@/lib/constants';
 
-// A single schema for the entire form
+// Validation Schema
 const registerFormSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  email: z
-    .string()
-    .email()
-    .refine(
-      (email) => {
-        const domain = email.split('@')[1];
-        return ALLOWED_EMAIL_DOMAINS.includes(domain);
-      },
-      { message: 'Please use a Gmail, Yahoo, Outlook, or iCloud email.' }
-    ),
-  phone: z
-    .string()
-    .regex(/^\+[1-9]\d{1,14}$/, {
-      message:
-        'Enter a valid international phone number (e.g., +15551234).',
-    }),
-  password: z
-    .string()
-    .min(8, { message: 'Password must be at least 8 characters.' }),
-  otp: z.string().length(6, { message: 'OTP must be 6 digits.' }),
+  email: z.string().email().refine(
+    (email) => {
+      const domain = email.split('@')[1];
+      return ALLOWED_EMAIL_DOMAINS.includes(domain);
+    },
+    { message: 'Please use a Gmail, Yahoo, Outlook, or iCloud email.' }
+  ),
+  phone: z.string().regex(/^\+[1-9]\d{1,14}$/, {
+    message: 'Enter a valid international phone number (e.g., +15551234).',
+  }),
+  password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
+  otp: z.string().optional(), 
 });
 
 export function RegisterForm() {
@@ -61,10 +33,9 @@ export function RegisterForm() {
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
-  const [isRegistering, setIsRegistering] = useState(false); // For the final submit button
+  const [isRegistering, setIsRegistering] = useState(false);
   const [hasSentOtp, setHasSentOtp] = useState(false);
 
-  // Single form instance
   const form = useForm<z.infer<typeof registerFormSchema>>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
@@ -76,274 +47,234 @@ export function RegisterForm() {
     },
   });
 
-  // Step 1: Send OTP after filling details
+  // 1. Send OTP Logic
   const handleSendOtp = async () => {
     setApiError(null);
     setApiSuccess(null);
 
-    // Validate only the user details first
-    const detailsValid = await form.trigger([
-      'name',
-      'email',
-      'phone',
-      'password',
-    ]);
+    const detailsValid = await form.trigger(['name', 'email', 'phone', 'password']);
     if (!detailsValid) {
-      setApiError(
-        'Please fill in your details (name, email, phone, password) correctly before sending the code.'
-      );
+      setApiError('Please fill in your details correctly before sending the code.');
       return;
     }
 
     setIsSendingOtp(true);
     const { name, email, phone, password } = form.getValues();
 
-    const response = await fetch('/api/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, phone, password }),
-    });
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, phone, password }),
+      });
 
-    const data = await response.json();
-    setIsSendingOtp(false);
-
-    if (response.ok) {
-      setApiSuccess(data.message); // "User created successfully. Please verify your email."
-      setHasSentOtp(true);
-    } else {
-      setApiError(data.message || 'An error occurred.');
+      const data = await response.json();
+      if (response.ok) {
+        setApiSuccess(data.message);
+        setHasSentOtp(true);
+      } else {
+        setApiError(data.message || 'An error occurred.');
+      }
+    } catch (err) {
+      setApiError('Failed to connect to the server.');
+    } finally {
+      setIsSendingOtp(false);
     }
   };
 
-  // Step 2: Verify the OTP
+  // 2. Verify OTP Logic
   const handleVerifyOtp = async () => {
     setApiError(null);
     setApiSuccess(null);
 
-    // Validate email and OTP fields
-    const otpValid = await form.trigger(['email', 'otp']);
-    if (!otpValid) {
-      setApiError('Please enter your email and the 6-digit OTP.');
+    const otp = form.getValues('otp');
+    if (!otp || otp.length !== 6) {
+      setApiError('Please enter the 6-digit OTP.');
       return;
     }
 
     setIsVerifyingOtp(true);
-    const { email, otp } = form.getValues();
+    const { email } = form.getValues();
 
-    const response = await fetch('/api/verify-otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, otp }),
-    });
+    try {
+      const response = await fetch('/api/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp }),
+      });
 
-    const data = await response.json();
-    setIsVerifyingOtp(false);
-
-    if (response.ok) {
-      setApiSuccess(data.message); // "Email verified successfully."
-      setIsEmailVerified(true);
-      form.clearErrors('otp');
-    } else {
-      setApiError(data.message || 'An error occurred during OTP verification.');
+      const data = await response.json();
+      if (response.ok) {
+        setApiSuccess(data.message);
+        setIsEmailVerified(true);
+      } else {
+        setApiError(data.message || 'An error occurred during OTP verification.');
+      }
+    } catch (err) {
+      setApiError('Failed to verify OTP.');
+    } finally {
+      setIsVerifyingOtp(false);
     }
   };
 
-  // Step 3: "Create Account" - only redirects, as creation/verification is done
-  async function onRegisterSubmit(values: z.infer<typeof registerFormSchema>) {
-    // This function is only reachable if isEmailVerified is true,
-    // because the submit button is disabled otherwise.
-    // The user is already created (in handleSendOtp) and verified (in handleVerifyOtp).
-    // We just need to redirect them to login.
+  // 3. Final Submit Logic
+  async function onRegisterSubmit() {
     setIsRegistering(true);
     router.push('/login?verified=true');
   }
 
+  // Helper to show field errors
+  const getFieldError = (field: keyof z.infer<typeof registerFormSchema>) => {
+    return form.formState.errors[field]?.message;
+  };
+
   return (
-    <Card className="mx-auto max-w-sm w-full">
-      <CardHeader>
-        <CardTitle className="text-2xl">Sign Up</CardTitle>
-        <CardDescription>
-          {isEmailVerified
-            ? 'Your email is verified! Click "Create Account".'
-            : hasSentOtp
-            ? 'Enter the code sent to your email.'
-            : 'Enter your information to create an account.'}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {apiError && (
-          <Alert variant="destructive" className="mb-4">
-            <Terminal className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{apiError}</AlertDescription>
-          </Alert>
-        )}
-        {apiSuccess && (
-          <Alert className="mb-4 bg-green-100 dark:bg-green-900/50 border-green-200 dark:border-green-800">
-            <Terminal className="h-4 w-4" />
-            <AlertTitle>Success</AlertTitle>
-            <AlertDescription>{apiSuccess}</AlertDescription>
-          </Alert>
-        )}
+    <div className="flex w-full max-w-sm flex-col items-center gap-6 bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-lg">
+      <div className="flex flex-col items-center gap-2 text-center">
+        <span className="material-symbols-outlined text-5xl text-primary-dark">waves</span>
+        <h1 className="text-3xl font-bold text-primary-dark">Create Account</h1>
+        <p className="text-secondary">Join AquaFresh today!</p>
+      </div>
 
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onRegisterSubmit)}
-            className="space-y-4"
-          >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="John Doe"
-                      {...field}
-                      disabled={isEmailVerified}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+      <form className="flex w-full flex-col gap-4" onSubmit={form.handleSubmit(onRegisterSubmit)}>
+        <div className="flex flex-col gap-4">
+          
+          {/* NAME */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-primary-dark/80" htmlFor="name">Name</label>
+            <input
+              className="h-12 w-full rounded-lg border border-secondary/30 bg-card-light shadow-sm focus:border-primary focus:ring-primary px-4"
+              id="name"
+              placeholder="John Doe"
+              type="text"
+              disabled={isEmailVerified}
+              {...form.register('name')}
             />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="name@example.com"
-                      {...field}
-                      disabled={isEmailVerified}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            {getFieldError('name') && <span className="text-xs text-red-500">{getFieldError('name')}</span>}
+          </div>
+
+          {/* EMAIL */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-primary-dark/80" htmlFor="email">Email</label>
+            <input
+              className="h-12 w-full rounded-lg border border-secondary/30 bg-card-light shadow-sm focus:border-primary focus:ring-primary px-4"
+              id="email"
+              placeholder="you@example.com"
+              type="email"
+              disabled={isEmailVerified}
+              {...form.register('email')}
             />
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="+15551234567"
-                      {...field}
-                      disabled={isEmailVerified}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            {getFieldError('email') && <span className="text-xs text-red-500">{getFieldError('email')}</span>}
+          </div>
+
+          {/* PHONE */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-primary-dark/80" htmlFor="phone">Phone Number</label>
+            <input
+              className="h-12 w-full rounded-lg border border-secondary/30 bg-card-light shadow-sm focus:border-primary focus:ring-primary px-4"
+              id="phone"
+              placeholder="+1234567890"
+              type="tel"
+              disabled={isEmailVerified}
+              {...form.register('phone')}
             />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      {...field}
-                      disabled={isEmailVerified}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            {getFieldError('phone') && <span className="text-xs text-red-500">{getFieldError('phone')}</span>}
+          </div>
+
+          {/* PASSWORD */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-primary-dark/80" htmlFor="password">Password</label>
+            <input
+              className="h-12 w-full rounded-lg border border-secondary/30 bg-card-light shadow-sm focus:border-primary focus:ring-primary px-4"
+              id="password"
+              placeholder="••••••••"
+              type="password"
+              disabled={isEmailVerified}
+              {...form.register('password')}
             />
-
-            {/* Send OTP Button */}
-            {!isEmailVerified && (
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={handleSendOtp}
-                disabled={isSendingOtp}
-              >
-                {isSendingOtp ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : null}
-                {isSendingOtp
-                  ? 'Sending Code...'
-                  : hasSentOtp
-                  ? 'Resend Code'
-                  : 'Send Verification Code'}
-              </Button>
-            )}
-
-            {/* OTP Field and Verify Button */}
-            {hasSentOtp && !isEmailVerified && (
-              <FormField
-                control={form.control}
-                name="otp"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Verification Code</FormLabel>
-                    <FormControl>
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="XXXXXX"
-                          {...field}
-                          disabled={isVerifyingOtp || isEmailVerified}
-                        />
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          onClick={handleVerifyOtp}
-                          disabled={isVerifyingOtp || isEmailVerified}
-                        >
-                          {isVerifyingOtp ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          ) : (
-                            'Verify'
-                          )}
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {isEmailVerified && (
-                <Alert variant="default" className="flex items-center bg-green-100 dark:bg-green-900/50 border-green-200 dark:border-green-800">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
-                    <AlertDescription className="text-green-700 dark:text-green-300 font-medium">
-                        Email verified! You can now create your account.
-                    </AlertDescription>
-                </Alert>
-            )}
-
-            {/* Final Submit Button */}
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={!isEmailVerified || isRegistering}
-            >
-              {isRegistering && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Create an account
-            </Button>
-          </form>
-        </Form>
-        <div className="mt-4 text-center text-sm">
-          Already have an account?{' '}
-          <Link href="/login" className="underline text-primary">
-            Sign in
-          </Link>
+             {getFieldError('password') && <span className="text-xs text-red-500">{getFieldError('password')}</span>}
+          </div>
         </div>
-      </CardContent>
-    </Card>
+
+        {/* SEND OTP BUTTON */}
+        {!isEmailVerified && (
+          <div className="mt-2">
+            <button
+              type="button"
+              onClick={handleSendOtp}
+              disabled={isSendingOtp}
+              className="flex h-12 w-full items-center justify-center rounded-full bg-accent text-base font-bold text-white shadow-md transition-transform active:scale-95 disabled:opacity-50"
+            >
+              {isSendingOtp ? 'Sending...' : hasSentOtp ? 'Resend Verification Code' : 'Send Verification Code'}
+            </button>
+          </div>
+        )}
+
+        {/* OTP SECTION */}
+        {hasSentOtp && (
+          <div className="my-2 flex w-full flex-col gap-4 border-t border-secondary/20 pt-4 animate-in fade-in slide-in-from-top-2">
+            
+            {/* Messages */}
+            {apiSuccess && (
+              <div className="flex items-center gap-2 rounded-lg bg-green-100 p-3 text-sm text-green-800">
+                <span className="material-symbols-outlined text-base">check_circle</span>
+                <span>{apiSuccess}</span>
+              </div>
+            )}
+            
+            {apiError && (
+              <div className="flex items-center gap-2 rounded-lg bg-red-100 p-3 text-sm text-red-800">
+                <span className="material-symbols-outlined text-base">error</span>
+                <span>{apiError}</span>
+              </div>
+            )}
+
+            {!isEmailVerified && (
+              <div className="flex w-full items-end gap-3">
+                <div className="flex flex-grow flex-col gap-2">
+                  <label className="text-sm font-medium text-primary-dark/80" htmlFor="otp">OTP</label>
+                  <input
+                    className="h-12 w-full rounded-lg border border-secondary/30 bg-card-light shadow-sm focus:border-primary focus:ring-primary px-4"
+                    id="otp"
+                    placeholder="123456"
+                    type="text"
+                    disabled={isVerifyingOtp}
+                    {...form.register('otp')}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleVerifyOtp}
+                  disabled={isVerifyingOtp}
+                  className="flex h-12 flex-shrink-0 items-center justify-center rounded-lg bg-secondary px-6 text-base font-bold text-white shadow-sm transition-transform active:scale-95 disabled:opacity-50"
+                >
+                  {isVerifyingOtp ? '...' : 'Verify'}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* FINAL SUBMIT */}
+        <div className="mt-2 flex flex-col gap-3">
+          <button
+            type="submit"
+            disabled={!isEmailVerified || isRegistering}
+            className="flex h-12 w-full items-center justify-center rounded-full bg-primary text-base font-bold text-white shadow-md transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+             {isRegistering ? 'Creating Account...' : 'Create an account'}
+          </button>
+          
+          <div className="text-center">
+            <p className="text-sm text-primary-dark/80">
+              Already have an account?{' '}
+              <Link href="/login" className="font-bold text-accent hover:underline">
+                Sign In
+              </Link>
+            </p>
+          </div>
+        </div>
+      </form>
+    </div>
   );
 }
