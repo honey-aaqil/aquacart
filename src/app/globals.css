@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .container {
+    @apply mx-auto px-4;
+  }
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+@layer base {
+  :root {
+    --background: 220 13% 97%; /* Lighter than requested for better contrast */
+    --foreground: 222 65% 10%;
+    --card: 220 13% 91%;
+    --card-foreground: 222 65% 10%;
+    --popover: 220 13% 91%;
+    --popover-foreground: 222 65% 10%;
+    --primary: 222 65% 31%; /* #1E3A8A */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 220 13% 91%; /* #E5E7EB */
+    --secondary-foreground: 222 65% 20%;
+    --muted: 220 9% 88%;
+    --muted-foreground: 222 65% 40%;
+    --accent: 177 49% 45%; /* #38B2AC */
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 13% 85%;
+    --input: 220 13% 88%;
+    --ring: 222 65% 31%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 222 65% 5%;
+    --foreground: 210 40% 98%;
+    --card: 222 65% 10%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 65% 5%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222 65% 20%;
+    --secondary: 222 65% 15%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 222 65% 15%;
+    --muted-foreground: 216 34% 65%;
+    --accent: 177 49% 45%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 222 65% 15%;
+    --input: 222 65% 15%;
+    --ring: 177 49% 55%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
