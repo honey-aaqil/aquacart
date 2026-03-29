@@ -13,7 +13,8 @@ const AddressSchema = new Schema({
 // Cart Item Schema
 const CartItemSchema = new Schema({
   productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
-  quantity: { type: Number, required: true, min: 1 },
+  quantity: { type: Number, required: true, min: 0.1 },
+  unit: { type: String, enum: ['piece', 'kg'], required: true, default: 'piece' },
 });
 
 // User Schema
@@ -68,6 +69,7 @@ export interface ICartItem {
     _id?: mongoose.Types.ObjectId;
     productId: mongoose.Types.ObjectId;
     quantity: number;
+    unit: 'piece' | 'kg';
 }
 
 export interface IUser extends Document {

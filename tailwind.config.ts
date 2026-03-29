@@ -10,18 +10,34 @@ export default {
   theme: {
     extend: {
       colors: {
-        // User custom colors for Auth UI
-        "primary": "#0c3aa2",
-        "primary-dark": "#071777",
-        "accent": "#2DA9DC",
-        "highlight": "#49F3F0",
-        "secondary": "#7abab4",
-        "background-light": "#d2ceb2",
-        "background-dark": "#101622",
-        "card-light": "#fdfcf7",
-        "card-dark": "#1a2233",
+        /* Marine Modern Palette */
+        'aq-primary': '#0050cb',
+        'aq-primary-container': '#0066ff',
+        'aq-primary-fixed': '#dae1ff',
+        'aq-primary-fixed-dim': '#b3c5ff',
+        'aq-on-primary': '#ffffff',
+        'aq-secondary': '#425ca0',
+        'aq-secondary-container': '#9bb4fe',
+        'aq-tertiary': '#006653',
+        'aq-tertiary-container': '#00816a',
+        'aq-tertiary-fixed': '#5ffbd6',
+        'aq-tertiary-fixed-dim': '#38debb',
+        'aq-error': '#ba1a1a',
+        'aq-error-container': '#ffdad6',
+        'aq-surface': '#f7f9fe',
+        'aq-surface-bright': '#f7f9fe',
+        'aq-surface-dim': '#d8dadf',
+        'aq-surface-container': '#eceef3',
+        'aq-surface-container-low': '#f1f4f9',
+        'aq-surface-container-high': '#e6e8ed',
+        'aq-surface-container-highest': '#e0e2e7',
+        'aq-surface-container-lowest': '#ffffff',
+        'aq-on-surface': '#181c20',
+        'aq-on-surface-variant': '#424656',
+        'aq-outline': '#727687',
+        'aq-outline-variant': '#c2c6d8',
 
-        // Existing Shadcn UI colors (keep these so other components don't break)
+        /* Shadcn compatibility tokens */
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
@@ -32,13 +48,21 @@ export default {
           DEFAULT: 'hsl(var(--popover))',
           foreground: 'hsl(var(--popover-foreground))',
         },
-        // 'primary' overlaps with your custom color. 
-        // If you want to keep Shadcn's primary for OTHER pages, 
-        // you might rename your custom one to 'brand-primary' 
-        // OR override it like we did above (which changes it globally).
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
+        },
         muted: {
           DEFAULT: 'hsl(var(--muted))',
           foreground: 'hsl(var(--muted-foreground))',
+        },
+        accent: {
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
         },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
@@ -55,16 +79,73 @@ export default {
           '5': 'hsl(var(--chart-5))',
         },
       },
+
       fontFamily: {
-        display: ['Inter', 'sans-serif'],
-        body: ['Inter', 'sans-serif'],
+        display: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        body: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
+
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
+        xl: '12px',
+        '2xl': '16px',
+        '3xl': '24px',
       },
-      // ... keep existing keyframes/animations
+
+      boxShadow: {
+        'aq-sm': '0px 1px 3px rgba(24, 28, 32, 0.06)',
+        'aq-md': '0px 4px 12px rgba(24, 28, 32, 0.06)',
+        'aq-lg': '0px 12px 32px rgba(24, 28, 32, 0.08)',
+        'aq-xl': '0px 20px 40px rgba(24, 28, 32, 0.04)',
+        'aq-hover': '0px 8px 24px rgba(0, 80, 203, 0.12)',
+        'aq-button': '0 4px 14px rgba(0, 80, 203, 0.25)',
+      },
+
+      backgroundImage: {
+        'aq-gradient-primary': 'linear-gradient(135deg, #0050cb 0%, #0066ff 100%)',
+        'aq-gradient-hero': 'linear-gradient(135deg, #0050cb 0%, #00816a 100%)',
+        'aq-gradient-teal': 'linear-gradient(135deg, #006653 0%, #00C9A7 100%)',
+        'aq-gradient-card': 'linear-gradient(135deg, #0066ff 0%, #38debb 100%)',
+      },
+
+      spacing: {
+        '18': '4.5rem',
+        '22': '5.5rem',
+        '88': '22rem',
+      },
+
+      keyframes: {
+        'fade-in-up': {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        'slide-up': {
+          '0%': { transform: 'translateY(100%)' },
+          '100%': { transform: 'translateY(0)' },
+        },
+        'scale-in': {
+          '0%': { transform: 'scale(0.95)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        'bounce-subtle': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-3px)' },
+        },
+      },
+
+      animation: {
+        'fade-in-up': 'fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'fade-in': 'fade-in 0.4s ease forwards',
+        'slide-up': 'slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'scale-in': 'scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'bounce-subtle': 'bounce-subtle 0.4s ease',
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],

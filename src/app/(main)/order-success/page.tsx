@@ -1,33 +1,39 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle } from "lucide-react";
 import Link from "next/link";
+import { CheckCircle, ArrowRight, ShoppingBag } from "lucide-react";
 
 export default function OrderSuccessPage() {
   return (
-    <div className="container flex items-center justify-center py-20">
-      <Card className="w-full max-w-lg text-center">
-        <CardHeader>
-            <div className="mx-auto bg-green-100 dark:bg-green-900 rounded-full p-3 w-fit">
-                <CheckCircle className="h-12 w-12 text-green-600 dark:text-green-400" />
-            </div>
-            <CardTitle className="text-3xl font-bold mt-4">Order Placed!</CardTitle>
-            <CardDescription className="text-lg text-muted-foreground">Thank you for your purchase.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-base text-foreground mb-8">
-            Your order is in queue. Our team will contact you shortly to take your order and confirm the details.
-          </p>
-          <div className="flex gap-4 justify-center">
-            <Button asChild>
-              <Link href="/shop">Continue Shopping</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/account">View Orders</Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="bg-aq-surface min-h-screen flex items-center justify-center p-4" id="order-success">
+      <div className="aq-card-static p-8 md:p-12 max-w-lg w-full text-center animate-scale-in">
+        {/* Success Icon */}
+        <div className="w-20 h-20 rounded-3xl bg-emerald-50 mx-auto flex items-center justify-center mb-6">
+          <CheckCircle className="h-10 w-10 text-aq-tertiary" />
+        </div>
+
+        <h1 className="text-3xl font-extrabold text-aq-on-surface tracking-tight mb-2">
+          Order Placed!
+        </h1>
+        <p className="text-aq-on-surface-variant mb-8 leading-relaxed">
+          Thank you for your purchase. Our team will contact you shortly to confirm the details and delivery schedule.
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Link
+            href="/shop"
+            className="inline-flex items-center justify-center gap-2 aq-btn-primary h-11 px-6 text-sm"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            Continue Shopping
+          </Link>
+          <Link
+            href="/account"
+            className="inline-flex items-center justify-center gap-2 aq-btn-outline h-11 px-6 text-sm"
+          >
+            View Orders
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

@@ -4,25 +4,39 @@ import './globals.css';
 import { Providers } from '@/components/common/Providers';
 import { Toaster } from '@/components/ui/toaster';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
-  title: 'AquaCart',
-  description: 'The freshest aquatic products, delivered.',
+  title: 'AquaCart — Fresh Seafood Delivery',
+  description: 'Premium sustainable seafood, sourced daily from local fishermen and delivered fresh to your doorstep.',
   manifest: '/manifest.json',
   applicationName: 'AquaCart',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
+    statusBarStyle: 'black-translucent',
     title: 'AquaCart',
   },
   formatDetection: {
     telephone: false,
   },
+  keywords: ['seafood', 'delivery', 'fresh fish', 'sustainable', 'ocean', 'prawns', 'lobster'],
+  openGraph: {
+    title: 'AquaCart — Fresh Seafood Delivery',
+    description: 'Premium sustainable seafood, sourced daily from local fishermen.',
+    type: 'website',
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#1E3A8A',
+  themeColor: '#0066FF',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
@@ -32,7 +46,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-body antialiased`}>
+      <head>
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+      </head>
+      <body className={`${inter.variable} font-body antialiased`} suppressHydrationWarning>
         <Providers>
           {children}
           <Toaster />

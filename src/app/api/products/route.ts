@@ -24,7 +24,10 @@ export async function GET() {
   }
 }
 
-// NEW: POST method to create a product
+import { writeFile } from 'fs/promises';
+import path from 'path';
+
+// NEW: POST method to create a product with file upload
 export async function POST(request: Request) {
   try {
     // 1. Security Check
@@ -34,10 +37,34 @@ export async function POST(request: Request) {
     }
 
     await dbConnect();
-    const body = await request.json();
 
-    // 2. Create Product
-    const newProduct = await ProductModel.create(body);
+    // 2. Parse FormData
+    const formData = await request.formData();
+    const name = formData.get('name') as string;
+    const description = formData.get('description') as string;
+    const price = parseFloat(formData.get('price') as string);
+    const category = formData.get('category') as string;
+    const quantity = parseInt(formData.get('quantity') as string, 10);
+    const stockKg = parseFloat(formData.get('stockKg') as string);
+    const pricePerKg = parseFloat(formData.get('pricePerKg') as string) || 0;
+    
+    const file = formData.get('image') as File | null;
+    let imageUrl = '';
+    
+    if (file && file.size > 0) {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+      const filepath = path.join(process.cwd(), 'public', 'uploads', filename);
+      await writeFile(filepath, buffer);
+      imageUrl = `/uploads/${filename}`;
+    } else {
+      return NextResponse.json({ message: 'Image file is required' }, { status: 400 });
+    }
+
+    // 3. Create Product
+    const newProduct = await ProductModel.create({
+      name, description, price, pricePerKg, category, quantity, stockKg, imageUrl
+    });
 
     return NextResponse.json(newProduct, { status: 201 });
   } catch (error: any) {

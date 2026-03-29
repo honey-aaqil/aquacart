@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { LayoutGrid, LogIn, LogOut, ShoppingCart, User, Crown } from 'lucide-react';
+import { Crown, LayoutGrid, LogIn, LogOut, Search, ShoppingCart, User, Waves, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ROLES } from '@/lib/constants';
 import { usePathname } from 'next/navigation';
@@ -15,79 +15,222 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useState, useEffect } from 'react';
 
-const NavLink = ({ href, children, icon: Icon }: { href: string; children: React.ReactNode; icon: React.ElementType }) => {
-  const pathname = usePathname();
-  const isActive = pathname === href;
-
-  return (
-    <Link href={href} passHref>
-      <Button variant={isActive ? 'secondary' : 'ghost'} className="flex items-center gap-2">
-        <Icon className="h-4 w-4" />
-        {children}
-      </Button>
-    </Link>
-  );
-};
+const desktopNavLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/shop', label: 'Shop' },
+  { href: '/cart', label: 'Cart' },
+];
 
 export default function Header() {
   const { data: session, status } = useSession();
+  const pathname = usePathname();
   const user = session?.user;
   const isAdmin = user?.role === ROLES.ADMIN;
+  const [cartCount, setCartCount] = useState(0);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/login' });
   };
-  
+
   const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : '?';
 
+  useEffect(() => {
+    const fetchCartCount = async () => {
+      try {
+        const res = await fetch('/api/cart');
+        if (res.ok) {
+          const data = await res.json();
+          setCartCount(data?.items?.length || 0);
+        }
+      } catch {
+        // silently fail
+      }
+    };
+    if (session) fetchCartCount();
+  }, [session, pathname]);
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
-        <Link href="/shop" className="mr-6 flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-primary"><path d="M7.5 7.5C7.5 5.01472 9.51472 3 12 3C14.4853 3 16.5 5.01472 16.5 7.5C16.5 9.98528 14.4853 12 12 12C9.51472 12 7.5 9.98528 7.5 7.5Z"></path><path d="M4.68343 14.8519C4.68343 14.8519 6.84918 17.5 12 17.5C17.1508 17.5 19.3166 14.8519 19.3166 14.8519C20.9854 12.8223 22 13.5 22 16C22 18.5 22 21 22 21H2C2 21 2 18.5 2 16C2 13.5 3.01458 12.8223 4.68343 14.8519Z"></path></svg>
-          <span className="font-bold text-lg text-primary">AquaCart</span>
+    <header
+      className="sticky top-0 z-50 w-full glass-strong"
+      id="main-header"
+      style={{ borderBottom: '1px solid rgba(194, 198, 216, 0.2)' }}
+    >
+      <div className="container flex h-16 items-center gap-4">
+        {/* Logo */}
+        <Link
+          href="/"
+          className="flex items-center gap-2 shrink-0 group"
+          id="header-logo"
+        >
+          <div className="w-9 h-9 rounded-xl bg-aq-gradient-primary flex items-center justify-center shadow-aq-sm group-hover:shadow-aq-hover transition-shadow duration-300">
+            <Waves className="h-5 w-5 text-white" />
+          </div>
+          <span className="font-extrabold text-lg text-aq-on-surface tracking-tight hidden sm:inline">
+            AquaCart
+          </span>
         </Link>
-        <nav className="hidden md:flex items-center space-x-2 flex-1">
-          <NavLink href="/shop" icon={LayoutGrid}>Shop</NavLink>
-          <NavLink href="/cart" icon={ShoppingCart}>Cart</NavLink>
-          {isAdmin && <NavLink href="/admin" icon={Crown}>Admin</NavLink>}
-        </nav>
-        <div className="flex flex-1 items-center justify-end space-x-4">
-          {status === 'loading' ? (
-            <div className="h-8 w-20 animate-pulse rounded-md bg-muted"></div>
-          ) : user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={`https://api.dicebear.com/8.x/initials/svg?seed=${user.name}`} alt={user.name ?? ''} />
-                    <AvatarFallback>{userInitial}</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuItem asChild>
-                  <Link href="/account">
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Account</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Link href="/login" passHref>
-              <Button>
-                <LogIn className="mr-2 h-4 w-4" /> Login
-              </Button>
+
+        {/* Desktop Nav Links */}
+        <nav className="hidden md:flex items-center gap-1 ml-6" id="desktop-nav">
+          {desktopNavLinks.map((link) => {
+            const isActive =
+              link.href === '/'
+                ? pathname === '/'
+                : pathname.startsWith(link.href);
+
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  'px-4 py-2 rounded-full text-sm font-medium transition-all duration-200',
+                  isActive
+                    ? 'bg-aq-primary-fixed text-aq-primary font-semibold'
+                    : 'text-aq-on-surface-variant hover:text-aq-on-surface hover:bg-aq-surface-container-high'
+                )}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className={cn(
+                'px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-1.5',
+                pathname.startsWith('/admin')
+                  ? 'bg-aq-primary-fixed text-aq-primary font-semibold'
+                  : 'text-aq-on-surface-variant hover:text-aq-on-surface hover:bg-aq-surface-container-high'
+              )}
+            >
+              <Crown className="h-3.5 w-3.5" />
+              Admin
             </Link>
           )}
+        </nav>
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Search (Desktop) */}
+        <div className="hidden md:flex items-center">
+          {isSearchOpen ? (
+            <div className="flex items-center gap-2 animate-scale-in">
+              <input
+                type="text"
+                placeholder="Search fresh seafood..."
+                className="aq-input h-9 w-64 px-4 text-sm"
+                autoFocus
+              />
+              <button
+                onClick={() => setIsSearchOpen(false)}
+                className="p-2 rounded-full hover:bg-aq-surface-container-high transition-colors"
+              >
+                <X className="h-4 w-4 text-aq-on-surface-variant" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="p-2 rounded-full hover:bg-aq-surface-container-high transition-colors text-aq-on-surface-variant"
+              id="search-toggle"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+          )}
         </div>
+
+        {/* Cart Icon (Desktop) */}
+        <Link
+          href="/cart"
+          className="hidden md:flex relative p-2 rounded-full hover:bg-aq-surface-container-high transition-colors text-aq-on-surface-variant"
+          id="header-cart"
+        >
+          <ShoppingCart className="h-5 w-5" />
+          {cartCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-aq-primary-container text-[10px] font-bold text-white">
+              {cartCount > 9 ? '9+' : cartCount}
+            </span>
+          )}
+        </Link>
+
+        {/* User Section */}
+        {status === 'loading' ? (
+          <div className="h-9 w-9 animate-shimmer rounded-full" />
+        ) : user ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="relative h-9 w-9 rounded-full p-0 hover:ring-2 hover:ring-aq-primary-fixed transition-all"
+                id="user-menu-trigger"
+              >
+                <Avatar className="h-9 w-9 border-2 border-aq-surface-container-high">
+                  <AvatarImage
+                    src={`https://api.dicebear.com/8.x/initials/svg?seed=${user.name}&backgroundColor=dae1ff&textColor=0050cb`}
+                    alt={user.name ?? ''}
+                  />
+                  <AvatarFallback className="bg-aq-primary-fixed text-aq-primary font-bold text-sm">
+                    {userInitial}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className="w-56 rounded-xl shadow-aq-lg border-aq-outline-variant/20 bg-white"
+              align="end"
+              forceMount
+            >
+              <div className="px-3 py-2.5">
+                <p className="text-sm font-semibold text-aq-on-surface">{user.name}</p>
+                <p className="text-xs text-aq-on-surface-variant">{user.email}</p>
+              </div>
+              <DropdownMenuSeparator className="bg-aq-outline-variant/20" />
+              <DropdownMenuItem asChild className="rounded-lg mx-1 cursor-pointer">
+                <Link href="/account" className="flex items-center gap-2.5 py-2">
+                  <User className="h-4 w-4 text-aq-on-surface-variant" />
+                  <span>My Account</span>
+                </Link>
+              </DropdownMenuItem>
+              {/* Mobile-only nav items in dropdown */}
+              <DropdownMenuItem asChild className="rounded-lg mx-1 cursor-pointer md:hidden">
+                <Link href="/shop" className="flex items-center gap-2.5 py-2">
+                  <LayoutGrid className="h-4 w-4 text-aq-on-surface-variant" />
+                  <span>Shop</span>
+                </Link>
+              </DropdownMenuItem>
+              {isAdmin && (
+                <DropdownMenuItem asChild className="rounded-lg mx-1 cursor-pointer md:hidden">
+                  <Link href="/admin" className="flex items-center gap-2.5 py-2">
+                    <Crown className="h-4 w-4 text-aq-on-surface-variant" />
+                    <span>Admin Panel</span>
+                  </Link>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator className="bg-aq-outline-variant/20" />
+              <DropdownMenuItem
+                onClick={handleSignOut}
+                className="rounded-lg mx-1 cursor-pointer text-aq-error"
+              >
+                <LogOut className="mr-2.5 h-4 w-4" />
+                <span>Sign Out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Link href="/login">
+            <Button
+              className="aq-btn-primary h-9 px-5 text-sm gap-2"
+              id="header-login-btn"
+            >
+              <LogIn className="h-4 w-4" />
+              <span className="hidden sm:inline">Sign In</span>
+            </Button>
+          </Link>
+        )}
       </div>
     </header>
   );

@@ -6,12 +6,8 @@ import * as z from 'zod';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { Terminal, Waves } from 'lucide-react';
+import Link from 'next/link';
+import { Waves, CheckCircle, AlertCircle } from 'lucide-react';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -27,10 +23,7 @@ export function LoginForm() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    defaultValues: { email: '', password: '' },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -46,110 +39,105 @@ export function LoginForm() {
       if (result?.error) {
         setError(result.error === 'CredentialsSignin' ? 'Invalid email or password.' : result.error);
       } else if (result?.ok) {
-        // Redirect to Home as requested
         router.push('/');
         router.refresh();
       }
-    } catch (err: any) {
-        setError('An unexpected error occurred.');
+    } catch {
+      setError('An unexpected error occurred.');
     } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
   }
 
   return (
-    // Main Container
-   
-    <div id="01" className="relative flex min-h-screen w-full flex-col items-center justify-center p-4 bg-background-light dark:bg-background-dark font-display">
-      
-      <div className="flex w-full max-w-sm flex-col items-center gap-8">
-        
-        {/* Header Section */}
-        <div className="flex flex-col items-center gap-2 text-center">
-          <Waves className="w-12 h-12 text-primary-dark" />
-          <h1 className="text-3xl font-bold text-primary-dark">Welcome to AquaFresh</h1>
-          <h3 className="text-secondary-teal dark:text-gray-400">Sign in to continue</h3>
-        </div>
+    <div className="flex min-h-screen w-full items-center justify-center bg-aq-surface p-4" id="login-page">
+      <div className="w-full max-w-md">
+        {/* Card */}
+        <div className="aq-card-static p-8 md:p-10 animate-fade-in-up">
+          {/* Logo & Header */}
+          <div className="flex flex-col items-center gap-3 mb-8">
+            <div className="w-14 h-14 rounded-2xl bg-aq-gradient-primary flex items-center justify-center shadow-aq-sm">
+              <Waves className="w-8 h-8 text-white" />
+            </div>
+            <div className="text-center">
+              <h1 className="text-2xl font-extrabold text-aq-on-surface tracking-tight">Welcome Back</h1>
+              <p className="text-sm text-aq-on-surface-variant mt-1">Sign in to your AquaCart account</p>
+            </div>
+          </div>
 
-        {/* Alerts */}
-        {emailVerified && (
-            <Alert className="bg-green-100 dark:bg-green-900/50 border-green-200 dark:border-green-800 text-green-800 dark:text-green-200">
-                <Terminal className="h-4 w-4" />
-                <AlertTitle>Success!</AlertTitle>
-                <AlertDescription>
-                    Your email has been verified. You can now log in.
-                </AlertDescription>
-            </Alert>
-        )}
-        {error && (
-            <Alert variant="destructive" className="bg-red-100 border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200">
-                <Terminal className="h-4 w-4" />
-                <AlertTitle>Login Failed</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-            </Alert>
-        )}
+          {/* Alerts */}
+          {emailVerified && (
+            <div className="flex items-center gap-2.5 rounded-xl bg-emerald-50 p-3.5 text-sm text-emerald-800 mb-5 animate-scale-in">
+              <CheckCircle className="h-5 w-5 text-emerald-600 shrink-0" />
+              <span>Your email has been verified. You can now sign in.</span>
+            </div>
+          )}
+          {error && (
+            <div className="flex items-center gap-2.5 rounded-xl bg-aq-error-container p-3.5 text-sm text-aq-error mb-5 animate-scale-in">
+              <AlertCircle className="h-5 w-5 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
 
-        {/* Form Section */}
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full flex-col gap-4">
-            
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem className="flex flex-col gap-2 space-y-0">
-                  <FormLabel className="text-sm font-medium text-primary-dark/80 dark:text-gray-300">Email</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="you@example.com" 
-                      className="h-12 w-full rounded-lg border-secondary-teal/30 bg-card-light dark:bg-card-dark dark:border-gray-700 shadow-sm focus:border-primary-medium focus:ring-primary-medium text-primary-dark dark:text-gray-200" 
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+          {/* Form */}
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-aq-on-surface" htmlFor="login-email">
+                Email
+              </label>
+              <input
+                id="login-email"
+                type="email"
+                placeholder="you@example.com"
+                className="aq-input h-12 px-4 text-sm"
+                {...form.register('email')}
+              />
+              {form.formState.errors.email && (
+                <span className="text-xs text-aq-error">{form.formState.errors.email.message}</span>
               )}
-            />
-
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem className="flex flex-col gap-2 space-y-0">
-                  <FormLabel className="text-sm font-medium text-primary-dark/80 dark:text-gray-300">Password</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="password" 
-                      placeholder="••••••••" 
-                      className="h-12 w-full rounded-lg border-secondary-teal/30 bg-card-light dark:bg-card-dark dark:border-gray-700 shadow-sm focus:border-primary-medium focus:ring-primary-medium text-primary-dark dark:text-gray-200" 
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="mt-4 flex flex-col gap-3">
-              <Button 
-                type="submit" 
-                disabled={isSubmitting}
-                className="flex h-12 w-full items-center justify-center rounded-full bg-primary-medium hover:bg-primary-medium/90 text-base font-bold text-white shadow-md transition-transform active:scale-95"
-              >
-                {isSubmitting ? 'Logging in...' : 'Login'}
-              </Button>
-              
-              <Button 
-                type="button"
-                onClick={() => router.push('/register')}
-                className="flex h-12 w-full items-center justify-center rounded-full bg-accent hover:bg-accent/90 text-base font-bold text-white shadow-md transition-transform active:scale-95"
-              >
-                Sign Up
-              </Button>
             </div>
 
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-aq-on-surface" htmlFor="login-password">
+                Password
+              </label>
+              <input
+                id="login-password"
+                type="password"
+                placeholder="••••••••"
+                className="aq-input h-12 px-4 text-sm"
+                {...form.register('password')}
+              />
+              {form.formState.errors.password && (
+                <span className="text-xs text-aq-error">{form.formState.errors.password.message}</span>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="aq-btn-primary h-12 text-sm w-full mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              id="login-submit"
+            >
+              {isSubmitting ? 'Signing in...' : 'Sign In'}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => router.push('/register')}
+              className="aq-btn-outline h-12 text-sm w-full"
+              id="login-register-link"
+            >
+              Create Account
+            </button>
           </form>
-        </Form>
+        </div>
+
+        {/* Bottom link */}
+        <p className="text-center text-xs text-aq-on-surface-variant mt-6">
+          By signing in, you agree to our{' '}
+          <span className="text-aq-primary font-medium cursor-pointer">Terms of Service</span>
+        </p>
       </div>
     </div>
   );

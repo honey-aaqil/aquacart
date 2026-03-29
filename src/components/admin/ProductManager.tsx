@@ -1,6 +1,6 @@
 'use client';
 
-import { IProduct } from '@/models/Product';
+import { IProduct, SerializedProduct } from '@/models/Product';
 import { useEffect, useState } from 'react';
 import {
   Table,
@@ -31,7 +31,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"; // Import Dialog components
+} from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
 import {
   Card,
@@ -40,13 +40,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import ProductForm from './ProductForm'; // Import the new form
+import ProductForm from './ProductForm';
 
 export default function ProductManager() {
-  const [products, setProducts] = useState<IProduct[]>([]);
+  const [products, setProducts] = useState<SerializedProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  const [isCreateOpen, setIsCreateOpen] = useState(false); // State to control the dialog
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<SerializedProduct | null>(null);
   const { toast } = useToast();
 
   const fetchProducts = async () => {
@@ -71,9 +72,22 @@ export default function ProductManager() {
     fetchProducts();
   }, []);
 
-  const handleProductCreated = () => {
-    setIsCreateOpen(false); // Close the dialog
-    fetchProducts(); // Refresh the list to show the new product
+  const handleProductSaved = () => {
+    setIsDialogOpen(false);
+    setEditingProduct(null);
+    fetchProducts();
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (!open) {
+      setEditingProduct(null); // Clear edit state when closing
+    }
+  };
+
+  const handleEditClick = (product: SerializedProduct) => {
+    setEditingProduct(product);
+    setIsDialogOpen(true);
   };
 
   const handleDelete = async (productId: string) => {
@@ -123,22 +137,20 @@ export default function ProductManager() {
             </CardDescription>
           </div>
           
-          {/* THE ADD NEW BUTTON WRAPPED IN A DIALOG */}
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-                <Button>
+                <Button onClick={() => setEditingProduct(null)}>
                     <PlusCircle className="mr-2 h-4 w-4" /> Add New
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle>Create Product</DialogTitle>
+                    <DialogTitle>{editingProduct ? 'Edit Product' : 'Create Product'}</DialogTitle>
                     <DialogDescription>
-                        Add a new product to your store inventory.
+                        {editingProduct ? 'Update product details.' : 'Add a new product to your store inventory.'}
                     </DialogDescription>
                 </DialogHeader>
-                {/* Pass the success handler to the form */}
-                <ProductForm onSuccess={handleProductCreated} />
+                <ProductForm initialData={editingProduct} onSuccess={handleProductSaved} />
             </DialogContent>
           </Dialog>
 
@@ -152,14 +164,15 @@ export default function ProductManager() {
               <TableHead>Name</TableHead>
               <TableHead>Category</TableHead>
               <TableHead className="text-right">Price</TableHead>
-              <TableHead className="text-right">Stock</TableHead>
+              <TableHead className="text-right">Stock (Pieces)</TableHead>
+              <TableHead className="text-right">Stock (Kg)</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {products.length === 0 ? (
                 <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                         No products found. Click "Add New" to create one.
                     </TableCell>
                 </TableRow>
@@ -171,11 +184,19 @@ export default function ProductManager() {
                     <TableCell className="text-right">
                     ${product.price.toFixed(2)}
                     </TableCell>
-                    <TableCell className="text-right">
-                    {product.quantity}
+                    <TableCell className="text-right text-muted-foreground font-semibold">
+                      {product.quantity}
+                    </TableCell>
+                    <TableCell className="text-right text-muted-foreground font-semibold">
+                      {product.stockKg || 0} kg
                     </TableCell>
                     <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" className="mr-2">
+                    <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="mr-2"
+                        onClick={() => handleEditClick(product)}
+                    >
                         <Edit className="h-4 w-4" />
                     </Button>
 

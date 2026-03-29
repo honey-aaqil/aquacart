@@ -77,10 +77,10 @@ export default function AdminDashboard() {
       setWsStatus('disconnected');
     };
 
-    ws.onerror = (error) => {
-      console.error('WebSocket error event:', error);
+    ws.onerror = () => {
+      // Muted error logging here because React Strict Mode intentionally 
+      // connects and aborts the connection repeatedly during dev, throwing fake errors.
       setWsStatus('disconnected');
-      // Don't spam toasts on error, the status icon is enough
     };
 
     // Cleanup function to close connection when component unmounts or deps change

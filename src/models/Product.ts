@@ -3,11 +3,13 @@ import mongoose, { Document, Model, Schema } from 'mongoose';
 const ProductSchema = new Schema({
   name: { type: String, required: true, trim: true },
   description: { type: String, required: true },
-  price: { type: Number, required: true, min: 0 },
+  price: { type: Number, required: true, min: 0, comment: "Price per piece" },
+  pricePerKg: { type: Number, required: true, min: 0, default: 0, comment: "Price per kilogram" },
   imageUrl: { type: String, required: true },
   imageHint: { type: String },
   category: { type: String, required: true, index: true },
-  quantity: { type: Number, required: true, min: 0, comment: "Stock quantity" },
+  quantity: { type: Number, required: true, min: 0, comment: "Stock quantity (pieces)" },
+  stockKg: { type: Number, required: true, default: 0, min: 0, comment: "Stock weight (kg)" },
   availability: { type: Boolean, default: true },
 }, { timestamps: true });
 
@@ -16,10 +18,12 @@ export interface IProduct extends Document {
   name: string;
   description: string;
   price: number;
+  pricePerKg: number;
   imageUrl: string;
   imageHint?: string;
   category: string;
   quantity: number;
+  stockKg: number;
   availability: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -27,14 +31,16 @@ export interface IProduct extends Document {
 
 // Frontend Interface: Pure Data (Use this in React Components)
 export interface SerializedProduct {
-  _id: string;
+  _id: string; // Convert ObjectId to string
   name: string;
   description: string;
   price: number;
+  pricePerKg: number;
   imageUrl: string;
   imageHint?: string;
   category: string;
   quantity: number;
+  stockKg: number;
   availability: boolean;
   createdAt: string; // JSON converts Date to string
   updatedAt: string; // JSON converts Date to string

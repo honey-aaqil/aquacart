@@ -42,6 +42,9 @@ export async function GET(request: Request, { params }: Props) {
   }
 }
 
+import { writeFile } from 'fs/promises';
+import path from 'path';
+
 // PUT: Update an existing product
 export async function PUT(request: Request, { params }: Props) {
   try {
@@ -54,7 +57,6 @@ export async function PUT(request: Request, { params }: Props) {
     await dbConnect();
     // FIX: Await the params object
     const { id } = await params;
-    const body = await request.json();
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -63,7 +65,33 @@ export async function PUT(request: Request, { params }: Props) {
       );
     }
 
-    const updatedProduct = await ProductModel.findByIdAndUpdate(id, body, {
+    // 2. Parse FormData
+    const formData = await request.formData();
+    const name = formData.get('name') as string;
+    const description = formData.get('description') as string;
+    const price = parseFloat(formData.get('price') as string);
+    const category = formData.get('category') as string;
+    const quantity = parseInt(formData.get('quantity') as string, 10);
+    const stockKg = parseFloat(formData.get('stockKg') as string);
+    const pricePerKg = parseFloat(formData.get('pricePerKg') as string) || 0;
+    
+    // Construct the payload dynamically
+    const updatePayload: any = {
+      name, description, price, pricePerKg, category, quantity, stockKg
+    };
+
+    const file = formData.get('image') as File | null;
+    
+    // Only upload a new file and overwrite imageUrl if a new File was provided
+    if (file && file.size > 0 && file.name) {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+      const filepath = path.join(process.cwd(), 'public', 'uploads', filename);
+      await writeFile(filepath, buffer);
+      updatePayload.imageUrl = `/uploads/${filename}`;
+    }
+
+    const updatedProduct = await ProductModel.findByIdAndUpdate(id, updatePayload, {
       new: true, // Return the updated document
       runValidators: true, // Ensure updates follow the schema
     });
