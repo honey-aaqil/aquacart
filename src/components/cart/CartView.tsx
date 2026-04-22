@@ -133,7 +133,7 @@ export default function CartView({ userAddresses }: { userAddresses: any[] }) {
             {/* Product info */}
             <div className="flex-grow min-w-0">
               <Link
-                href={`/shop/${item.productId._id}`}
+                href={`/shop/${(item.productId as any).slug || item.productId._id}`}
                 className="text-sm font-bold text-aq-on-surface hover:text-aq-primary transition-colors line-clamp-1"
               >
                 {item.productId.name}

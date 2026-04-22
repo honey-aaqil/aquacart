@@ -74,7 +74,7 @@ export function ProductCard({ product }: ProductCardProps) {
       whileInView="visible"
       viewport={{ once: true, amount: 0.2 }}
     >
-      <Link href={`/shop/${product._id}`} className="block group">
+      <Link href={`/shop/${product.slug}`} className="block group">
         <div className="aq-card overflow-hidden h-full flex flex-col">
           {/* Image */}
           <div className="relative aspect-[4/3] overflow-hidden bg-aq-surface-container">

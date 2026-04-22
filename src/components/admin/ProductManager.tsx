@@ -143,7 +143,7 @@ export default function ProductManager() {
                     <PlusCircle className="mr-2 h-4 w-4" /> Add New
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>{editingProduct ? 'Edit Product' : 'Create Product'}</DialogTitle>
                     <DialogDescription>

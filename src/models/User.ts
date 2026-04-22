@@ -50,6 +50,8 @@ const UserSchema = new Schema({
   isEmailVerified: { type: Boolean, default: false },
   emailVerificationToken: { type: String },
   emailVerificationTokenExpiry: { type: Date },
+  resetPasswordToken: { type: String },
+  resetPasswordTokenExpiry: { type: Date },
   addresses: [AddressSchema],
   cart: {
     items: [CartItemSchema],
@@ -81,6 +83,8 @@ export interface IUser extends Document {
   isEmailVerified: boolean;
   emailVerificationToken?: string;
   emailVerificationTokenExpiry?: Date;
+  resetPasswordToken?: string;
+  resetPasswordTokenExpiry?: Date;
   addresses: IAddress[];
   cart: {
     items: ICartItem[];

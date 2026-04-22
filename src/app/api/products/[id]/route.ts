@@ -68,6 +68,7 @@ export async function PUT(request: Request, { params }: Props) {
     // 2. Parse FormData
     const formData = await request.formData();
     const name = formData.get('name') as string;
+    const slug = (formData.get('slug') as string)?.toLowerCase().trim();
     const description = formData.get('description') as string;
     const price = parseFloat(formData.get('price') as string);
     const category = formData.get('category') as string;
@@ -79,6 +80,15 @@ export async function PUT(request: Request, { params }: Props) {
     const updatePayload: any = {
       name, description, price, pricePerKg, category, quantity, stockKg
     };
+
+    // Handle slug update with uniqueness check
+    if (slug) {
+      const existingProduct = await ProductModel.findOne({ slug, _id: { $ne: id } });
+      if (existingProduct) {
+        return NextResponse.json({ message: `A product with the slug "${slug}" already exists.` }, { status: 409 });
+      }
+      updatePayload.slug = slug;
+    }
 
     const file = formData.get('image') as File | null;
     

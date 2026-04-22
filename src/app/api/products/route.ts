@@ -41,12 +41,22 @@ export async function POST(request: Request) {
     // 2. Parse FormData
     const formData = await request.formData();
     const name = formData.get('name') as string;
+    const slug = (formData.get('slug') as string)?.toLowerCase().trim();
     const description = formData.get('description') as string;
     const price = parseFloat(formData.get('price') as string);
     const category = formData.get('category') as string;
     const quantity = parseInt(formData.get('quantity') as string, 10);
     const stockKg = parseFloat(formData.get('stockKg') as string);
     const pricePerKg = parseFloat(formData.get('pricePerKg') as string) || 0;
+
+    // Validate slug
+    if (!slug) {
+      return NextResponse.json({ message: 'Slug is required' }, { status: 400 });
+    }
+    const existingProduct = await ProductModel.findOne({ slug });
+    if (existingProduct) {
+      return NextResponse.json({ message: `A product with the slug "${slug}" already exists. Please use a different slug.` }, { status: 409 });
+    }
     
     const file = formData.get('image') as File | null;
     let imageUrl = '';
@@ -63,7 +73,7 @@ export async function POST(request: Request) {
 
     // 3. Create Product
     const newProduct = await ProductModel.create({
-      name, description, price, pricePerKg, category, quantity, stockKg, imageUrl
+      name, slug, description, price, pricePerKg, category, quantity, stockKg, imageUrl
     });
 
     return NextResponse.json(newProduct, { status: 201 });

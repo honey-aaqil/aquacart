@@ -2,6 +2,7 @@ import mongoose, { Document, Model, Schema } from 'mongoose';
 
 const ProductSchema = new Schema({
   name: { type: String, required: true, trim: true },
+  slug: { type: String, required: true, unique: true, trim: true, lowercase: true },
   description: { type: String, required: true },
   price: { type: Number, required: true, min: 0, comment: "Price per piece" },
   pricePerKg: { type: Number, required: true, min: 0, default: 0, comment: "Price per kilogram" },
@@ -16,6 +17,7 @@ const ProductSchema = new Schema({
 // Backend Interface: Extends Mongoose Document (Use this in API routes)
 export interface IProduct extends Document {
   name: string;
+  slug: string;
   description: string;
   price: number;
   pricePerKg: number;
@@ -33,6 +35,7 @@ export interface IProduct extends Document {
 export interface SerializedProduct {
   _id: string; // Convert ObjectId to string
   name: string;
+  slug: string;
   description: string;
   price: number;
   pricePerKg: number;

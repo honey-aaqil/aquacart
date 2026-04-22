@@ -13,6 +13,10 @@ const pwaConfig = withPWA({
 
 const nextConfig: NextConfig = {
   /* config options here */
+  // @ts-ignore
+  serverOptions: { allowedDevOrigins: ['192.168.56.1'] },
+  // Depending on Next.js version, it might be top-level:
+  allowedDevOrigins: ['192.168.56.1', 'localhost', '127.0.0.1'],
   turbopack: {}, // Keep this if you are using Turbopack
   typescript: {
     ignoreBuildErrors: true,
