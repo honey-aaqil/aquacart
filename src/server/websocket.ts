@@ -37,22 +37,33 @@ const adminClients = new Set<WebSocket>();
 const secret = process.env.NEXTAUTH_SECRET;
 
 server.on('upgrade', async (request, socket, head) => {
+    console.log('Received upgrade request for URL:', request.url);
     const { query } = url.parse(request.url || '', true);
     const token = query.token as string;
 
-    if (!token || !secret) {
+    if (!token) {
+        console.error('No token provided');
+        socket.destroy();
+        return;
+    }
+
+    if (!secret) {
+        console.error('No NEXTAUTH_SECRET provided in env');
         socket.destroy();
         return;
     }
 
     try {
+        console.log('Verifying token...');
         const decodedToken = jwt.verify(token, secret) as { role?: string };
+        console.log('Token verified, role:', decodedToken.role);
 
         if (decodedToken && decodedToken.role === ROLES.ADMIN) {
             wss.handleUpgrade(request, socket, head, (ws) => {
                 wss.emit('connection', ws, request);
             });
         } else {
+            console.error('User is not an admin');
             socket.destroy();
         }
     } catch (error) {
