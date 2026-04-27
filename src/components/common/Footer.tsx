@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Waves } from 'lucide-react';
+
 
 export default function Footer() {
   return (
@@ -25,9 +25,6 @@ export default function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-aq-gradient-primary flex items-center justify-center">
-                <Waves className="h-5 w-5 text-white" />
-              </div>
               <span className="font-extrabold text-lg tracking-tight">AquaCart</span>
             </div>
             <p className="text-sm text-white/60 leading-relaxed max-w-xs">

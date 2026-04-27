@@ -6,7 +6,7 @@ import * as z from 'zod';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Waves, CheckCircle, AlertCircle } from 'lucide-react';
+import { Waves, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 const formSchema = z.object({
   password: z.string().min(8, { message: 'Password must be at least 8 characters long.' }),
@@ -25,6 +25,8 @@ export function ResetPasswordForm() {
   const [success, setSuccess] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -142,14 +144,24 @@ export function ResetPasswordForm() {
               <label className="text-sm font-medium text-aq-on-surface" htmlFor="password">
                 New Password
               </label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                placeholder="••••••••"
-                className="aq-input h-12 px-4 text-sm"
-                {...form.register('password')}
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  placeholder="••••••••"
+                  className="aq-input h-12 px-4 pr-12 text-sm w-full"
+                  {...form.register('password')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-aq-on-surface-variant hover:text-aq-primary hover:bg-aq-surface-container-high transition-colors"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                </button>
+              </div>
               {form.formState.errors.password && (
                 <span className="text-xs text-aq-error">{form.formState.errors.password.message}</span>
               )}
@@ -159,14 +171,24 @@ export function ResetPasswordForm() {
               <label className="text-sm font-medium text-aq-on-surface" htmlFor="confirmPassword">
                 Confirm New Password
               </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                placeholder="••••••••"
-                className="aq-input h-12 px-4 text-sm"
-                {...form.register('confirmPassword')}
-              />
+              <div className="relative">
+                <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  placeholder="••••••••"
+                  className="aq-input h-12 px-4 pr-12 text-sm w-full"
+                  {...form.register('confirmPassword')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-aq-on-surface-variant hover:text-aq-primary hover:bg-aq-surface-container-high transition-colors"
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                </button>
+              </div>
               {form.formState.errors.confirmPassword && (
                 <span className="text-xs text-aq-error">{form.formState.errors.confirmPassword.message}</span>
               )}

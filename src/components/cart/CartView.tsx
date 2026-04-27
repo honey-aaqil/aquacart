@@ -154,8 +154,12 @@ export default function CartView({ userAddresses }: { userAddresses: any[] }) {
                   {item.quantity}
                 </span>
                 <button
-                  onClick={() => updateQuantity(item.productId._id, item.quantity + 1)}
-                  className="w-8 h-8 rounded-full bg-aq-surface-container-high flex items-center justify-center hover:bg-aq-primary-fixed transition-colors"
+                  onClick={() => {
+                    const max = (item.productId as any).maxQuantity ?? 99;
+                    updateQuantity(item.productId._id, Math.min(item.quantity + 1, max));
+                  }}
+                  disabled={item.quantity >= ((item.productId as any).maxQuantity ?? 99)}
+                  className="w-8 h-8 rounded-full bg-aq-surface-container-high flex items-center justify-center hover:bg-aq-primary-fixed transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Plus className="w-3.5 h-3.5 text-aq-on-surface-variant" />
                 </button>

@@ -49,6 +49,7 @@ const formSchema = z.object({
   category: z.string().min(1, { message: 'Please select a category.' }),
   quantity: z.coerce.number().min(0, { message: 'Quantity cannot be negative.' }),
   stockKg: z.coerce.number().min(0, { message: 'Weight (Kg) cannot be negative.' }),
+  maxQuantity: z.coerce.number().min(1, { message: 'Max quantity must be at least 1.' }),
   image: z.any().optional(),
 });
 
@@ -76,6 +77,7 @@ export default function ProductForm({ onSuccess, initialData }: ProductFormProps
       category: initialData?.category || '',
       quantity: initialData?.quantity || 1,
       stockKg: initialData?.stockKg || 0,
+      maxQuantity: initialData?.maxQuantity || 99,
     },
   });
 
@@ -116,6 +118,7 @@ export default function ProductForm({ onSuccess, initialData }: ProductFormProps
       formData.append('category', values.category);
       formData.append('quantity', values.quantity.toString());
       formData.append('stockKg', values.stockKg.toString());
+      formData.append('maxQuantity', values.maxQuantity.toString());
 
       if (values.image && values.image.length > 0) {
         formData.append('image', values.image[0]);
@@ -404,6 +407,29 @@ export default function ProductForm({ onSuccess, initialData }: ProductFormProps
               )}
             />
           </div>
+
+          <FormField
+            control={form.control}
+            name="maxQuantity"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs font-semibold text-aq-on-surface-variant">Max Order Quantity</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min={1}
+                    placeholder="99"
+                    className="h-11 rounded-xl border-aq-outline-variant/30 bg-aq-surface-container-low focus:border-aq-primary focus:ring-1 focus:ring-aq-primary/20 transition-all"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription className="text-[11px] text-aq-on-surface-variant">
+                  Maximum pieces a customer can add to cart
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         {/* ─── Section 5: Description ─── */}

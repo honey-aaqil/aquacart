@@ -32,6 +32,7 @@ async function seedDatabase() {
         const placeholder = PlaceHolderImages[index % PlaceHolderImages.length];
         return {
             ...p,
+            slug: p.name.toLowerCase().replace(/\s+/g, '-'),
             imageUrl: placeholder.imageUrl,
             imageHint: placeholder.imageHint,
             availability: p.quantity > 0,

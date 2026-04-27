@@ -118,6 +118,42 @@ export default function ProductManager() {
     }
   };
 
+  const handleToggleStock = async (productId: string, currentAvailability: boolean) => {
+    // Optimistic update
+    setProducts((prev) =>
+      prev.map((p) =>
+        p._id === productId ? { ...p, availability: !currentAvailability } : p
+      )
+    );
+
+    try {
+      const res = await fetch(`/api/products/${productId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ availability: !currentAvailability }),
+      });
+
+      if (!res.ok) throw new Error('Failed to update stock status');
+
+      toast({
+        title: 'Stock Updated',
+        description: `Product is now ${!currentAvailability ? 'In Stock' : 'Out of Stock'}.`,
+      });
+    } catch (error: any) {
+      // Rollback on error
+      setProducts((prev) =>
+        prev.map((p) =>
+          p._id === productId ? { ...p, availability: currentAvailability } : p
+        )
+      );
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: error.message || 'Could not update stock status.',
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -166,6 +202,7 @@ export default function ProductManager() {
               <TableHead className="text-right">Price</TableHead>
               <TableHead className="text-right">Stock (Pieces)</TableHead>
               <TableHead className="text-right">Stock (Kg)</TableHead>
+              <TableHead className="text-center">In Stock</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -189,6 +226,24 @@ export default function ProductManager() {
                     </TableCell>
                     <TableCell className="text-right text-muted-foreground font-semibold">
                       {product.stockKg || 0} kg
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleStock(product._id, product.availability)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                          product.availability
+                            ? 'bg-emerald-500 focus:ring-emerald-500'
+                            : 'bg-gray-300 focus:ring-gray-400'
+                        }`}
+                        aria-label={product.availability ? 'Mark as out of stock' : 'Mark as in stock'}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
+                            product.availability ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
                     </TableCell>
                     <TableCell className="text-right">
                     <Button 

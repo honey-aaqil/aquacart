@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Link from 'next/link';
 import { ALLOWED_EMAIL_DOMAINS } from '@/lib/constants';
-import { Waves, CheckCircle, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
+import { Waves, CheckCircle, AlertCircle, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
 
 const registerFormSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -34,6 +34,7 @@ export function RegisterForm() {
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   const [hasSentOtp, setHasSentOtp] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof registerFormSchema>>({
     resolver: zodResolver(registerFormSchema),
@@ -184,14 +185,24 @@ export function RegisterForm() {
             {/* Password */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-aq-on-surface" htmlFor="reg-password">Password</label>
-              <input
-                id="reg-password"
-                className="aq-input h-12 px-4 text-sm"
-                placeholder="••••••••"
-                type="password"
-                disabled={isEmailVerified}
-                {...form.register('password')}
-              />
+              <div className="relative">
+                <input
+                  id="reg-password"
+                  className="aq-input h-12 px-4 pr-12 text-sm w-full"
+                  placeholder="••••••••"
+                  type={showPassword ? 'text' : 'password'}
+                  disabled={isEmailVerified}
+                  {...form.register('password')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-aq-on-surface-variant hover:text-aq-primary hover:bg-aq-surface-container-high transition-colors"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                </button>
+              </div>
               {getFieldError('password') && <span className="text-xs text-aq-error">{getFieldError('password')}</span>}
             </div>
 

@@ -48,6 +48,7 @@ export async function POST(request: Request) {
     const quantity = parseInt(formData.get('quantity') as string, 10);
     const stockKg = parseFloat(formData.get('stockKg') as string);
     const pricePerKg = parseFloat(formData.get('pricePerKg') as string) || 0;
+    const maxQuantity = parseInt(formData.get('maxQuantity') as string, 10) || 99;
 
     // Validate slug
     if (!slug) {
@@ -73,7 +74,7 @@ export async function POST(request: Request) {
 
     // 3. Create Product
     const newProduct = await ProductModel.create({
-      name, slug, description, price, pricePerKg, category, quantity, stockKg, imageUrl
+      name, slug, description, price, pricePerKg, category, quantity, stockKg, maxQuantity, imageUrl
     });
 
     return NextResponse.json(newProduct, { status: 201 });

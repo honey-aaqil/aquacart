@@ -75,10 +75,11 @@ export async function PUT(request: Request, { params }: Props) {
     const quantity = parseInt(formData.get('quantity') as string, 10);
     const stockKg = parseFloat(formData.get('stockKg') as string);
     const pricePerKg = parseFloat(formData.get('pricePerKg') as string) || 0;
+    const maxQuantity = parseInt(formData.get('maxQuantity') as string, 10) || 99;
     
     // Construct the payload dynamically
     const updatePayload: any = {
-      name, description, price, pricePerKg, category, quantity, stockKg
+      name, description, price, pricePerKg, category, quantity, stockKg, maxQuantity
     };
 
     // Handle slug update with uniqueness check
@@ -162,5 +163,38 @@ export async function DELETE(request: Request, { params }: Props) {
       { message: 'Internal Server Error' },
       { status: 500 }
     );
+  }
+}
+
+// PATCH: Toggle product availability (stock toggle)
+export async function PATCH(request: Request, { params }: Props) {
+  try {
+    const session = await auth();
+    if (!session || session.user?.role !== 'admin') {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
+    await dbConnect();
+    const { id } = await params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ message: 'Invalid product ID' }, { status: 400 });
+    }
+
+    const body = await request.json();
+    const updatedProduct = await ProductModel.findByIdAndUpdate(
+      id,
+      { availability: body.availability },
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return NextResponse.json({ message: 'Product not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(updatedProduct, { status: 200 });
+  } catch (error) {
+    console.error('Failed to toggle availability:', error);
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }

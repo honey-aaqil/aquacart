@@ -9,6 +9,7 @@ export interface Product {
   imageHint?: string;
   category: string;
   quantity: number;
+  maxQuantity: number;
   availability: boolean;
   createdAt: string;
   updatedAt: string;

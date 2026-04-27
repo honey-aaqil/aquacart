@@ -1,4 +1,5 @@
 import CartView from '@/components/cart/CartView';
+import SuggestedFish from '@/components/cart/SuggestedFish';
 import { auth } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import UserModel from '@/models/User';
@@ -28,6 +29,7 @@ export default async function CartPage() {
           </div>
         </div>
         <CartView userAddresses={JSON.parse(JSON.stringify(addresses))} />
+        <SuggestedFish />
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { Crown, LayoutGrid, LogIn, LogOut, Search, ShoppingCart, User, Waves, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ROLES } from '@/lib/constants';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -26,10 +26,12 @@ const desktopNavLinks = [
 export default function Header() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const router = useRouter();
   const user = session?.user;
   const isAdmin = user?.role === ROLES.ADMIN;
   const [cartCount, setCartCount] = useState(0);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/login' });
@@ -52,6 +54,14 @@ export default function Header() {
     if (session) fetchCartCount();
   }, [session, pathname]);
 
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
+      setSearchQuery('');
+    }
+  };
+
   return (
     <header
       className="sticky top-0 z-50 w-full glass-strong"
@@ -65,9 +75,11 @@ export default function Header() {
           className="flex items-center gap-2 shrink-0 group"
           id="header-logo"
         >
-          <div className="w-9 h-9 rounded-xl bg-aq-gradient-primary flex items-center justify-center shadow-aq-sm group-hover:shadow-aq-hover transition-shadow duration-300">
-            <Waves className="h-5 w-5 text-white" />
-          </div>
+          <img 
+            src="/icons/icon-192x192.ico" 
+            alt="AquaCart Logo" 
+            className="w-9 h-9 object-contain"
+          />
           <span className="font-extrabold text-lg text-aq-on-surface tracking-tight hidden sm:inline">
             AquaCart
           </span>
@@ -123,6 +135,9 @@ export default function Header() {
                 type="text"
                 placeholder="Search fresh seafood..."
                 className="aq-input h-9 w-64 px-4 text-sm"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
                 autoFocus
               />
               <button

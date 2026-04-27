@@ -186,8 +186,9 @@ export default function ProductDetailPage() {
                     {quantity}
                   </span>
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-aq-surface-container-high transition-colors"
+                    onClick={() => setQuantity(Math.min(quantity + 1, product.maxQuantity ?? 99))}
+                    disabled={quantity >= (product.maxQuantity ?? 99)}
+                    className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-aq-surface-container-high transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     aria-label="Increase quantity"
                   >
                     <Plus className="w-4 h-4 text-aq-on-surface-variant" />
@@ -207,6 +208,11 @@ export default function ProductDetailPage() {
                   {isAddingToCart ? 'Adding...' : 'Add to Cart'}
                 </Button>
               </div>
+              {quantity >= (product.maxQuantity ?? 99) && (
+                <p className="text-xs text-amber-600 mt-2">
+                  Maximum order limit: {product.maxQuantity ?? 99} pieces
+                </p>
+              )}
             </div>
           </motion.div>
         </div>

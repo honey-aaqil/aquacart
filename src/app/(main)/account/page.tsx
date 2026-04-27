@@ -1,5 +1,6 @@
 import AddressManager from "@/components/account/AddressManager";
 import OrderHistory from "@/components/account/OrderHistory";
+import ProfileEditor from "@/components/account/ProfileEditor";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { auth } from "@/lib/auth";
 import dbConnect from "@/lib/mongodb";
@@ -40,13 +41,14 @@ export default async function AccountPage() {
               {user.name?.charAt(0)?.toUpperCase() || '?'}
             </span>
           </div>
-          <div className="text-center sm:text-left">
+          <div className="text-center sm:text-left flex-1">
             <h1 className="text-2xl font-extrabold text-aq-on-surface tracking-tight">{user.name}</h1>
             <p className="text-sm text-aq-on-surface-variant mt-0.5">{user.email}</p>
             {user.phone && (
               <p className="text-xs text-aq-outline mt-1">{user.phone}</p>
             )}
           </div>
+          <ProfileEditor defaultValues={{ name: user.name || '', phone: user.phone || '' }} />
         </div>
 
         {/* Tabs */}

@@ -4,7 +4,7 @@ import withPWA from '@ducanh2912/next-pwa';
 
 const pwaConfig = withPWA({
   dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
+  disable: false, // Temporarily enabled for testing
   register: true,
   // REMOVED: skipWaiting: true (This was causing the TypeScript error)
   // If you specifically need this, it usually goes into workboxOptions like this:
@@ -13,11 +13,7 @@ const pwaConfig = withPWA({
 
 const nextConfig: NextConfig = {
   /* config options here */
-  // @ts-ignore
-  serverOptions: { allowedDevOrigins: ['192.168.56.1'] },
-  // Depending on Next.js version, it might be top-level:
-  allowedDevOrigins: ['192.168.56.1', 'localhost', '127.0.0.1'],
-  turbopack: {}, // Keep this if you are using Turbopack
+  allowedDevOrigins: ['192.168.56.1'],
   typescript: {
     ignoreBuildErrors: true,
   },

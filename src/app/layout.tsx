@@ -23,6 +23,14 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
+  icons: {
+    icon: [
+      { url: '/icons/icon-192x192.ico', sizes: '192x192', type: 'image/x-icon' },
+    ],
+    apple: [
+      { url: '/icons/icon-192x192.png' },
+    ],
+  },
   keywords: ['seafood', 'delivery', 'fresh fish', 'sustainable', 'ocean', 'prawns', 'lobster'],
   openGraph: {
     title: 'AquaCart — Fresh Seafood Delivery',

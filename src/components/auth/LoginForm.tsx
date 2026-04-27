@@ -7,7 +7,7 @@ import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import Link from 'next/link';
-import { Waves, CheckCircle, AlertCircle } from 'lucide-react';
+import { Waves, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -19,6 +19,7 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const emailVerified = searchParams.get('verified') === 'true';
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -106,13 +107,23 @@ export function LoginForm() {
                   Forgot password?
                 </Link>
               </div>
-              <input
-                id="login-password"
-                type="password"
-                placeholder="••••••••"
-                className="aq-input h-12 px-4 text-sm"
-                {...form.register('password')}
-              />
+              <div className="relative">
+                <input
+                  id="login-password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  className="aq-input h-12 px-4 pr-12 text-sm w-full"
+                  {...form.register('password')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-aq-on-surface-variant hover:text-aq-primary hover:bg-aq-surface-container-high transition-colors"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                </button>
+              </div>
               {form.formState.errors.password && (
                 <span className="text-xs text-aq-error">{form.formState.errors.password.message}</span>
               )}
