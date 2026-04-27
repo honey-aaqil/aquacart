@@ -50,6 +50,56 @@ export async function sendVerificationEmail(email: string, otp: string) {
   await transporter.sendMail(mailOptions);
 }
 
+export async function sendInvoiceEmail(
+  email: string,
+  customerName: string,
+  orderId: string,
+  totalAmount: number,
+  invoicePath: string
+) {
+  const fs = await import('fs');
+  const path = await import('path');
+
+  const absolutePath = path.join(process.cwd(), 'public', invoicePath.replace(/^\//, ''));
+
+  const attachments: any[] = [];
+  if (fs.existsSync(absolutePath)) {
+    attachments.push({
+      filename: `AquaCart-Invoice-${orderId.slice(-8).toUpperCase()}.pdf`,
+      path: absolutePath,
+      contentType: 'application/pdf',
+    });
+  }
+
+  const mailOptions = {
+    from: process.env.EMAIL_FROM,
+    to: email,
+    subject: `AquaCart - Payment Confirmed | Order #${orderId.slice(-6)}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>${emailStyles}</head>
+      <body>
+        <div class="container">
+          <div class="logo">AQ</div>
+          <h1 class="title">Payment Successful! 🎉</h1>
+          <p class="text">Hi ${customerName}, your payment of <strong>₹${totalAmount.toFixed(2)}</strong> has been confirmed.</p>
+          <div style="background-color: #f1f4f9; border-radius: 12px; padding: 20px; margin: 24px 0;">
+            <p style="margin: 0; font-size: 14px; color: #424656;">Order ID: <strong style="color: #0050cb;">#${orderId.slice(-8).toUpperCase()}</strong></p>
+            <p style="margin: 8px 0 0; font-size: 14px; color: #424656;">Status: <strong style="color: #22c55e;">Paid</strong></p>
+          </div>
+          <p class="text">Your invoice is attached to this email. You can also download it from your order history.</p>
+          <div class="footer">&copy; ${new Date().getFullYear()} AquaCart. All rights reserved.</div>
+        </div>
+      </body>
+      </html>
+    `,
+    attachments,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
+
 export async function sendPasswordResetEmail(email: string, token: string) {
   const resetUrl = `${getBaseUrl()}/reset-password?token=${token}`;
   

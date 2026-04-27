@@ -57,7 +57,7 @@ export async function POST(request: Request) {
       user.cart.items[cartItemIndex].quantity += quantity;
     } else {
       // Add new item
-      user.cart.items.push({ productId: new mongoose.Types.ObjectId(productId), quantity });
+      user.cart.items.push({ productId: new mongoose.Types.ObjectId(productId), quantity, unit: 'piece' });
     }
 
     await user.save();

@@ -117,3 +117,49 @@ export async function POST(request: Request) {
     dbSession.endSession();
   }
 }
+
+export async function GET() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
+  await dbConnect();
+
+  try {
+    const orders = await OrderModel.find({ userId: session.user.id })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const serialized = orders.map((order: any) => ({
+      _id: order._id.toString(),
+      customerName: order.customerName,
+      customerEmail: order.customerEmail || '',
+      customerPhone: order.customerPhone,
+      items: order.items.map((item: any) => ({
+        _id: item._id?.toString(),
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+      totalAmount: order.totalAmount,
+      deliveryAddress: order.deliveryAddress,
+      orderStatus: order.orderStatus,
+      paymentStatus: order.paymentStatus || 'Pending Payment',
+      paymentMethod: order.paymentMethod || 'Razorpay',
+      refundStatus: order.refundStatus || 'None',
+      refundReason: order.refundReason,
+      razorpayOrderId: order.razorpayOrderId,
+      razorpayPaymentId: order.razorpayPaymentId,
+      invoiceUrl: order.invoiceUrl,
+      createdAt: order.createdAt?.toISOString(),
+      updatedAt: order.updatedAt?.toISOString(),
+    }));
+
+    return NextResponse.json(serialized, { status: 200 });
+
+  } catch (error: any) {
+    console.error('Fetch orders error:', error);
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
+  }
+}

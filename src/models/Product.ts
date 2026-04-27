@@ -11,6 +11,7 @@ const ProductSchema = new Schema({
   category: { type: String, required: true, index: true },
   quantity: { type: Number, required: true, min: 0, comment: "Stock quantity (pieces)" },
   stockKg: { type: Number, required: true, default: 0, min: 0, comment: "Stock weight (kg)" },
+  reservedStock: { type: Number, default: 0, min: 0, comment: "Temporarily reserved stock during payment processing" },
   maxQuantity: { type: Number, default: 99, min: 1, comment: "Max quantity a customer can order" },
   availability: { type: Boolean, default: true },
 }, { timestamps: true });
@@ -27,6 +28,7 @@ export interface IProduct extends Document {
   category: string;
   quantity: number;
   stockKg: number;
+  reservedStock: number;
   maxQuantity: number;
   availability: boolean;
   createdAt: Date;
@@ -46,6 +48,7 @@ export interface SerializedProduct {
   category: string;
   quantity: number;
   stockKg: number;
+  reservedStock: number;
   maxQuantity: number;
   availability: boolean;
   createdAt: string; // JSON converts Date to string

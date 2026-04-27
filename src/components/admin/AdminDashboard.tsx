@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Bell, CheckCircle, Circle, Loader2 } from 'lucide-react';
+import OrderManager from './OrderManager';
 
 type OrderNotification = {
   orderId: string;
@@ -92,6 +93,7 @@ export default function AdminDashboard() {
   }, [accessToken, userRole, toast]); // Dependencies are now stable primitives
 
   return (
+    <>
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
@@ -138,7 +140,7 @@ export default function AdminDashboard() {
                     </p>
                   </div>
                   <p className="text-xl font-extrabold text-primary">
-                    ${order.totalPrice.toFixed(2)}
+                    ₹{order.totalPrice.toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -147,5 +149,11 @@ export default function AdminDashboard() {
         )}
       </CardContent>
     </Card>
+
+    {/* Order Management */}
+    <div className="mt-6">
+      <OrderManager />
+    </div>
+    </>
   );
 }
